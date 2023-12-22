@@ -1,10 +1,8 @@
-import { ItemView, TFile, WorkspaceLeaf, parseYaml, setIcon,  } from "obsidian";
+import { ItemView, Notice, TFile, WorkspaceLeaf, debounce, parseYaml, setIcon  } from "obsidian";
 import { getFirstLineWithoutHash } from "./utils";
 import * as fs from "fs";
 import VivaldiNotesPlugin from "./main";
-// import {Root} from "react-dom/client";
 import Fuse from "fuse.js";
-import debounce from 'lodash.debounce';
 
 export const VIEW_TYPE = "vivaldi-notes-view";
 
@@ -32,17 +30,15 @@ interface AppNote extends Note {
 const VIVALDI_NOTES_PATH_WIN = "C:\\Users\\USUARIO\\AppData\\Local\\Vivaldi\\User Data\\Default\\";
 const VIVALDI_NOTES_PATH_LIN = "/mnt/c/Users/USUARIO/AppData/Local/Vivaldi/User\ Data/Default/";
 
-const checkCircle = `<svg xmlns="http://www.w3.org/2000/svg" class="check-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check-circle"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`
 
-let intervalId: NodeJS.Timeout | null;
 export class VivaldiNotesView extends ItemView {
   plugin: VivaldiNotesPlugin;
   // root: Root | null = null;
   // settings:
   previousChecksum: string = "";
-  fuse: Fuse<Note, Fuse.FuseOptions<Note>> | null = null;
-  notesList: Note[] = [];
-  appNotes:  AppNote[];
+  fuse: Fuse<AppNote> | null = null;
+  filteredNotesList: AppNote[]; // THe filtered lists of notes to be displayed
+  appNotes:  AppNote[]; // All the notes
   options = {
     includeScore: true,
     keys: [{name:'title', weight: 0.6},{name:'content', weight: 0.1}, {name:'id', weight: 0.3}]
@@ -65,7 +61,7 @@ export class VivaldiNotesView extends ItemView {
     return "Vivaldi Notes Viewer";
   }
   getIcon(): string {
-    return "calendar-clock";
+    return "file-check-2";
   }
   
   
@@ -85,24 +81,24 @@ export class VivaldiNotesView extends ItemView {
 
     this.fuse = new Fuse(this.appNotes, this.options)
 
-    this.notesList = this.appNotes
+    this.filteredNotesList = this.appNotes
 
     const searchBar = container.createEl("input", { cls:"search-bar", attr: { type: "search", placeholder: "Search...", enterKeyhint:"search" } });
     this.renderedList = container.createEl("ul", { cls: "vivaldi-notes-list" });
 
-    searchBar.addEventListener("input", debounce((e) => {
-      let value = e.target?.value 
-      if(e.target?.value != null && e.target?.value != undefined && e.target?.value != "") {
-        let resultado = this.fuse.search(e.target.value)
-        this.notesList = resultado.map((note) => note.item)
+    searchBar.addEventListener("input", debounce((e:InputEvent) => {
+      let value = (e.target as HTMLInputElement).value
+      if(value!= null && value != undefined && value != "" && this.fuse) {
+        let resultado = this.fuse.search(value)
+        this.filteredNotesList = resultado.map((note) => note.item)
 
         while (this.renderedList?.firstChild) {
           this.renderedList?.removeChild(this.renderedList.firstChild);
         }
         
-        if(this.notesList != null) {this.renderNotes(this.notesList)}
+        if(this.filteredNotesList != null) {this.renderNotes(this.filteredNotesList)}
 
-      } else if (e.target?.value == "") {
+      } else if (value == "") {
         // while (ul.firstChild) {
         //   ul.removeChild(ul.firstChild);
         // }
@@ -155,16 +151,19 @@ export class VivaldiNotesView extends ItemView {
       this.renderedList?.createEl("li", { text: note.title.length == 40 ? note.title+"..." : note.title, cls:"vivaldi-notes-list-item", attr:{id: note.id} })
         .onClickEvent(async (event) => {
           if (!this.verifyCreatedNotes(note.title)) {
-            (event.target as HTMLElement).innerHTML += checkCircle;
+            setIcon((event.target as HTMLLIElement).createDiv({cls:"check-icon"}), "file-check-2");
+            new Notice("Note imported")
             this.createNewNote(note.title, note);
           } else {
             // await this.app.vault.open(note.title);
-            this.app.workspace.openLinkText(note.title, '', true);
+            
+            new Notice("Note already imported")
+            this.app.workspace.openLinkText(note.title, '', false);
           //   (event.target as HTMLElement).innerHTML += `<p>Reescribir?</p>`;
           }
         });
         if (this.verifyCreatedNotes(note.title)) {
-          (this.renderedList?.lastElementChild as HTMLLIElement).innerHTML += checkCircle;
+          setIcon((this.renderedList?.lastElementChild as HTMLLIElement).createDiv({cls:"check-icon"}), "file-check-2")
         }
     });
   }
@@ -219,17 +218,17 @@ export class VivaldiNotesView extends ItemView {
     return file;
   }
 
-  async getNotesMetadata(notePathORContentString:TFile | string, type:"file"|"string"):Promise<boolean> {
-    if (type == "file" && notePathORContentString instanceof TFile) {
-      const file = notePathORContentString;
-    } else if (type == "string" && typeof notePathORContentString == "string") {
-      const file = this.app.vault.read();
+  async getNotesMetadata(notePathORContentString:TFile | string):Promise<boolean> {
+    let file:string
+    if(typeof notePathORContentString == "string"){
+      file = await this.app.vault.read(await this.getNoteFile(notePathORContentString))
+    } else {
+      file = await this.app.vault.read(notePathORContentString)
     }
-    const file = await typeof notePath == "string" ? notePath : this.app.vault.read(await this.getNoteFile(notePath)) ;
     const frontmatterRegex = /^---\n([\s\S]*?)\n---\n/;
     const match = file.match(frontmatterRegex);
     if (!match) {
-      return false;
+      return false; 
     }
     const frontmatter = parseYaml(match[1]);
     return frontmatter;
