@@ -1,0 +1,6 @@
+{
+  "notesPath": "C:\\Users\\USUARIO\\AppData\\Local\\Vivaldi\\User Data\\Default",
+  "vaultLocation": "",
+  "interval": 5000,
+  "notesTemplate": "---\nurl: {{URL}}\ndate_created: {{DATE_CREATED}}\nid: {{VIVALDI_ID}}\n---\n\n{{CONTENT}}\n\n---\n{{IMAGES}}\n\n"
+}

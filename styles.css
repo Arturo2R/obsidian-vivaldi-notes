@@ -1,8 +1,57 @@
-/*
+ul.vivaldi-notes-list {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    height: 100%;
+    width: 100%;
+    overflow: auto;
+    padding-left: 0;
+    border-radius: 4px; /* Add this line to set the border radius */
+}
 
-This CSS file will be included with your plugin, and
-available in the app when your plugin is enabled.
+ul.vivaldi-notes-list > li.vivaldi-notes-list-item {
+    /* padding: 4px; */
+    list-style-type: none; /* Add this line to hide the list bullet */
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    border-radius: var(--radius-s);
+    color: var(--nav-item-color);
+    font-size: var(--nav-item-size);
+    line-height: var(--line-height-tight);
+    font-weight: var(--nav-item-weight);
+    margin-bottom: var(--size-2-1);
+    padding: var(--nav-item-padding);
+    border-bottom: 1px solid var(--colorAccentBg);
+}
 
-If your plugin does not need CSS, delete this file.
+ul.vivaldi-notes-list > li.vivaldi-notes-list-item:hover {
+    background-color: var(--nav-item-background-hover);
+    font-weight: var(--nav-item-weight-hover);
+    color: var(--nav-item-color-hover);
 
-*/
+}
+
+input.search-bar {
+    width: 100%;
+}
+
+li .check-icon {
+    align-self: center;
+    width: var(--icon-size) !important;
+    height:  var(--icon-size) !important;
+    color: var(--icon-color);
+    opacity:  var(--icon-opacity);
+    font-size: var(--nav-item-size);
+    line-height: var(--line-height-tight);
+    font-weight: var(--nav-item-weight);
+}
+
+li .check-icon:hover {
+    color: var(--icon-color-hover);
+    opacity:  var(--icon-opacity-hover);
+
+}
