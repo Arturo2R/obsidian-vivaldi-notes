@@ -1,7 +1,7 @@
 {
 	"id": "obsidian-vivaldi-notes",
 	"name": "Vivaldi Notes Importer",
-	"version": "0.4.3",
+	"version": "0.4.5",
 	"minAppVersion": "0.15.0",
 	"description": "Fetches notes from vivaldi automatically with search and filtering.",
 	"author": "Obsidian",
