@@ -1,7 +1,7 @@
 {
   "name": "obsidian-vivaldi-notes",
-  "version": "0.43",
-  "description": "A plugin for that fetch notes from vivaldi automatically, with search and filtering.",
+  "version": "0.4.3",
+  "description": "A plugin for obsidian that fetches notes from vivaldi automatically, with search and filtering.",
   "main": "main.js",
   "scripts": {
     "dev": "node esbuild.config.mjs",

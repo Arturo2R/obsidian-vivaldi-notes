@@ -1,11 +1,11 @@
 {
-	"id": "sample-plugin",
-	"name": "Sample Plugin",
-	"version": "1.0.0",
+	"id": "obsidian-vivaldi-notes",
+	"name": "Vivaldi Notes Importer",
+	"version": "0.4.3",
 	"minAppVersion": "0.15.0",
-	"description": "This is a sample plugin for Obsidian. This plugin demonstrates some of the capabilities of the Obsidian API.",
+	"description": "Fetches notes from vivaldi automatically with search and filtering.",
 	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
+	"authorUrl": "https://github.com/Arturo2r",
 	"fundingUrl": "https://obsidian.md/pricing",
-	"isDesktopOnly": false
+	"isDesktopOnly": true
 }
