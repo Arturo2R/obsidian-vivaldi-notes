@@ -1,7 +1,7 @@
 {
     "id":"obsidian-vivaldi-notes",
     "name":"Vivaldi Notes Importer",
-    "version":"0.5.0",
+    "version":"1.0.0",
     "minAppVersion":"0.15.0",
     "description":"Import notes from Vivaldi browser.",
     "author":"Arturo2r",
