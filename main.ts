@@ -43,9 +43,9 @@ export default class VivaldiNotesPlugin extends Plugin {
   }
 
   onunload() {
-    
-    // When unloading, we need to manually remove the view from the workspace.
-    this.app.workspace.detachLeavesOfType(VIEW_TYPE);
+    // // When unloading, we need to manually remove the view from the workspace.
+    // The Obsidian plugin says "Dont detach leaves in onunload" 
+    // this.app.workspace.detachLeavesOfType(VIEW_TYPE);
   }
 
   async loadSettings() {

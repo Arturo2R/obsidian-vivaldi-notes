@@ -1,4 +1,4 @@
-import { ItemView, Notice, TFile, WorkspaceLeaf, debounce, parseYaml, setIcon  } from "obsidian";
+import { ItemView, Notice, TFile, WorkspaceLeaf, debounce, normalizePath, parseYaml, setIcon  } from "obsidian";
 import { getFirstLineWithoutHash } from "./utils";
 import * as fs from "fs";
 import VivaldiNotesPlugin from "./main";
@@ -120,11 +120,11 @@ export class VivaldiNotesView extends ItemView {
   registerInterval(id: number): number {
     const intervalTime = this.plugin.settings.interval
     return window.setInterval(async() => {
-      const currentChecksum = await this.getNotesChecksum(VIVALDI_NOTES_PATH_WIN);
+      const currentChecksum = await this.getNotesChecksum(this.plugin.settings.notesPath);
       console.log(currentChecksum)
       // If the checksum has changed, re-render the list
       if (currentChecksum !== this.previousChecksum) {
-        const {notes:newNotesList} = await this.getNotesJSON(VIVALDI_NOTES_PATH_WIN);
+        const {notes:newNotesList} = await this.getNotesJSON(this.plugin.settings.notesPath);
 
         this.appNotes = newNotesList.map((note) => {
           let title = getFirstLineWithoutHash(note.content);
@@ -169,14 +169,15 @@ export class VivaldiNotesView extends ItemView {
   }
 
   async getNotesJSON(path:string):Promise<{notes:Note[], checksum: string}> {
-    let stringpath = path+"Notes";
+    let stringpath = normalizePath(path+ "/" + "Notes");
     const fileContents = await fs.readFileSync(stringpath, 'utf8');
     let dato:Notes = JSON.parse(fileContents);
     return {notes : dato.children, checksum: dato.checksum};
   }
 
   async getNotesChecksum(path:string):Promise<string> {
-    let stringpath = path+"Notes";
+    let stringpath = normalizePath(path+ "/" + "Notes");
+    console.log(stringpath)
     const fileContents = await fs.readFileSync(stringpath);
     const checksum = fileContents.slice(19,51).toString();
     
@@ -194,16 +195,19 @@ export class VivaldiNotesView extends ItemView {
 
     if(note.children.length > 0) {
       // let imagesString = ""
-      let imageArray = note.children.filter(child=>child.type === "attachment").map((child) => `\n<img src="${this.plugin.settings.notesPath}\\SyncedFiles\\${child.content}" width="100%" height="auto"/>\n`)
+      // Fix this Shaitβe
+      let imageArray = note.children.filter(child=>child.type === "attachment").map((child) => `\n<img src="${normalizePath(this.plugin.settings.notesPath + "/" + "SyncedFiles" + "/"´+ child.content )}" width="100%" height="auto"/>\n`)
       content = content.replace("{{IMAGES}}", imageArray.toString())
     } else {
       content = content.replace("{{IMAGES}}", "")
     }
 
 
-    let carpeta = this.plugin.settings.vaultLocation
-    carpeta += this.plugin.settings.vaultLocation == "/" ? "" : "/"
-    const stringpath = carpeta + title + ".md"
+    // let carpeta = this.plugin.settings.vaultLocation
+    let carpeta = this.plugin.settings.vaultLocation +"/"
+    console.log(carpeta)
+    const stringpath = normalizePath(carpeta + title + ".md")
+    console.log(stringpath)
     const newNote = await this.app.vault.create(stringpath, content);
     // open the file after creation
     await this.app.workspace.openLinkText(newNote.path, '', true);
@@ -236,9 +240,9 @@ export class VivaldiNotesView extends ItemView {
 
   verifyCreatedNotes(title: string): boolean {
     // Check if the note exists in Obsidian
-    let carpeta = this.plugin.settings.vaultLocation
-    carpeta += this.plugin.settings.vaultLocation == "/" ? "" : "/"
-    const stringpath =  title + ".md"
+    let carpeta = this.plugin.settings.vaultLocation +"/"
+    console.log(carpeta)
+    const stringpath = normalizePath(carpeta + title + ".md")
     const noteExists = this.app.vault.getAbstractFileByPath(stringpath) !== null;
     return noteExists;
   }
