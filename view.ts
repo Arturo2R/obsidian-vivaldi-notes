@@ -196,7 +196,7 @@ export class VivaldiNotesView extends ItemView {
     if(note.children.length > 0) {
       // let imagesString = ""
       // Fix this Shaitβe
-      let imageArray = note.children.filter(child=>child.type === "attachment").map((child) => `\n<img src="${normalizePath(this.plugin.settings.notesPath + "/" + "SyncedFiles" + "/"´+ child.content )}" width="100%" height="auto"/>\n`)
+      let imageArray = note.children.filter(child=>child.type === "attachment").map((child) => `\n<img src="${normalizePath(this.plugin.settings.notesPath + "/" + "SyncedFiles" + "/" + child.content )}" width="100%" height="auto"/>\n`)
       content = content.replace("{{IMAGES}}", imageArray.toString())
     } else {
       content = content.replace("{{IMAGES}}", "")
