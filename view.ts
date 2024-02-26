@@ -66,7 +66,6 @@ export class VivaldiNotesView extends ItemView {
   
   
   async onOpen() {
-    console.log("Opened Vivaldi Notes Viewer")
     const container = this.containerEl.children[1];
     container.empty();
     container.createEl("h4", { text: "Vivaldi Notes" });
@@ -121,7 +120,6 @@ export class VivaldiNotesView extends ItemView {
     const intervalTime = this.plugin.settings.interval
     return window.setInterval(async() => {
       const currentChecksum = await this.getNotesChecksum(this.plugin.settings.notesPath);
-      console.log(currentChecksum)
       // If the checksum has changed, re-render the list
       if (currentChecksum !== this.previousChecksum) {
         const {notes:newNotesList} = await this.getNotesJSON(this.plugin.settings.notesPath);
@@ -177,7 +175,6 @@ export class VivaldiNotesView extends ItemView {
 
   async getNotesChecksum(path:string):Promise<string> {
     let stringpath = normalizePath(path+ "/" + "Notes");
-    console.log(stringpath)
     const fileContents = await fs.readFileSync(stringpath);
     const checksum = fileContents.slice(19,51).toString();
     
@@ -205,9 +202,7 @@ export class VivaldiNotesView extends ItemView {
 
     // let carpeta = this.plugin.settings.vaultLocation
     let carpeta = this.plugin.settings.vaultLocation +"/"
-    console.log(carpeta)
     const stringpath = normalizePath(carpeta + title + ".md")
-    console.log(stringpath)
     const newNote = await this.app.vault.create(stringpath, content);
     // open the file after creation
     await this.app.workspace.openLinkText(newNote.path, '', true);
@@ -241,14 +236,12 @@ export class VivaldiNotesView extends ItemView {
   verifyCreatedNotes(title: string): boolean {
     // Check if the note exists in Obsidian
     let carpeta = this.plugin.settings.vaultLocation +"/"
-    console.log(carpeta)
     const stringpath = normalizePath(carpeta + title + ".md")
     const noteExists = this.app.vault.getAbstractFileByPath(stringpath) !== null;
     return noteExists;
   }
 
   async onClose() {
-    console.log("Closed Vivaldi Notes Viewer, stopped interval")
     if (this.intervalId) {
       clearInterval(this.intervalId);
     }
