@@ -1,6 +1,6 @@
 {
-  "name": "obsidian-vivaldi-notes",
-  "version": "1.0.1",
+  "name": "vivaldi-importer",
+  "version": "1.0.2",
   "description": "A plugin for obsidian that fetches notes from vivaldi automatically, with search and filtering.",
   "main": "main.js",
   "scripts": {
